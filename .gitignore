@@ -1,0 +1,11 @@
+# Terraform files
+.terraform/
+*.tf
+*.tfstate
+*.tfstate.backup
+
+# Executable
+terraform-provider-sonarqube
+
+# Can happen
+crash.log
