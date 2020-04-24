@@ -1,7 +1,6 @@
 package sonarqube
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
@@ -36,12 +35,12 @@ func resourceProject() *schema.Resource {
 func resourceProjectExists(d *schema.ResourceData, m interface{}) (bool, error) {
 	client := m.(*sonargo.Client)
 
-	projects, resp, err := client.Projects.Search(&sonargo.ProjectsSearchOption{
+	_, _, err := client.Projects.Search(&sonargo.ProjectsSearchOption{
 		Projects: "versie",
 	})
-	fmt.Println(projects)
-	fmt.Println(resp)
-	fmt.Println(err)
+	if err != nil {
+		return false, err
+	}
 	return true, nil
 }
 
