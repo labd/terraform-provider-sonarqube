@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
+	"github.com/hashicorp/terraform-plugin-sdk/helper/validation"
 	sonargo "github.com/labd/sonargo/sonar"
 )
 
@@ -12,7 +13,6 @@ func resourceProjectUser() *schema.Resource {
 		Create: resourceProjectUserCreate,
 		Read:   resourceProjectUserRead,
 		Delete: resourceProjectUserDelete,
-		Exists: resourceProjectUserExists,
 		Schema: map[string]*schema.Schema{
 			"login": {
 				Type:     schema.TypeString,
@@ -28,21 +28,17 @@ func resourceProjectUser() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
+				ValidateFunc: validation.StringInSlice([]string{
+					"admin",
+					"codeviewer",
+					"issueadmin",
+					"securityhotspotadmin",
+					"scan",
+					"user",
+				}, false),
 			},
 		},
 	}
-}
-
-func resourceProjectUserExists(d *schema.ResourceData, m interface{}) (bool, error) {
-	client := m.(*sonargo.Client)
-
-	_, _, err := client.Projects.Search(&sonargo.ProjectsSearchOption{
-		Projects: "versie",
-	})
-	if err != nil {
-		return false, err
-	}
-	return true, nil
 }
 
 func resourceProjectUserCreate(d *schema.ResourceData, m interface{}) error {
@@ -56,7 +52,7 @@ func resourceProjectUserCreate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
-	d.SetId(fmt.Sprintf("%s__%s", d.Get("project_key").(string), d.Get("login")))
+	d.SetId(fmt.Sprintf("%s:%s:%s", d.Get("project_key"), d.Get("login"), d.Get("permission")))
 	return nil
 }
 
