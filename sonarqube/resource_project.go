@@ -1,7 +1,7 @@
 package sonarqube
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	sonargo "github.com/labd/sonargo/sonar"
@@ -14,6 +14,9 @@ func resourceProject() *schema.Resource {
 		Update: resourceProjectUpdate,
 		Delete: resourceProjectDelete,
 		Exists: resourceProjectExists,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 		Schema: map[string]*schema.Schema{
 			"key": {
 				Type:     schema.TypeString,
@@ -35,13 +38,13 @@ func resourceProject() *schema.Resource {
 func resourceProjectExists(d *schema.ResourceData, m interface{}) (bool, error) {
 	client := m.(*sonargo.Client)
 
-	_, _, err := client.Projects.Search(&sonargo.ProjectsSearchOption{
-		Projects: "versie",
+	results, _, err := client.Projects.Search(&sonargo.ProjectsSearchOption{
+		Projects: d.Id(),
 	})
 	if err != nil {
 		return false, err
 	}
-	return true, nil
+	return len(results.Components) == 1, nil
 }
 
 func resourceProjectCreate(d *schema.ResourceData, m interface{}) error {
@@ -52,7 +55,7 @@ func resourceProjectCreate(d *schema.ResourceData, m interface{}) error {
 		visibility = "public"
 	}
 
-	project, resp, err := client.Projects.Create(&sonargo.ProjectsCreateOption{
+	result, _, err := client.Projects.Create(&sonargo.ProjectsCreateOption{
 		Branch:     "",
 		Name:       d.Get("name").(string),
 		Project:    d.Get("key").(string),
@@ -61,34 +64,81 @@ func resourceProjectCreate(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
-	log.Print(project)
-	log.Print(resp)
-	log.Print(err)
-	d.SetId(project.Project.Key)
-	d.Set("key", project.Project.Key)
-	return resourceProjectRead(d, m)
+
+	d.SetId(result.Project.Key)
+	d.Set("name", result.Project.Name)
+	d.Set("key", result.Project.Key)
+	d.Set("public", result.Project.Visibility == "public")
+	return nil
 }
 
 func resourceProjectRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(*sonargo.Client)
 
-	project, resp, err := client.Projects.Search(&sonargo.ProjectsSearchOption{
+	results, _, err := client.Projects.Search(&sonargo.ProjectsSearchOption{
 		Projects: d.Id(),
 	})
-	log.Print(project)
-	log.Print(resp)
-	log.Print(err)
+	if err != nil {
+		return err
+	}
+
+	if len(results.Components) == 0 {
+		return fmt.Errorf("No project found with key %s", d.Id())
+	}
+
+	d.Set("name", results.Components[0].Name)
+	d.Set("key", results.Components[0].Key)
+	d.Set("public", results.Components[0].Visibility == "public")
 	return nil
 }
 
 func resourceProjectUpdate(d *schema.ResourceData, m interface{}) error {
-	return resourceProjectRead(d, m)
+	client := m.(*sonargo.Client)
+
+	d.Partial(true)
+
+	if d.HasChange("key") {
+		oldValue, newValue := d.GetChange("key")
+		_, err := client.Projects.UpdateKey(&sonargo.ProjectsUpdateKeyOption{
+			From: oldValue.(string),
+			To:   newValue.(string),
+		})
+
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("key")
+	}
+
+	if d.HasChange("public") {
+
+		visibility := "private"
+		if d.Get("public").(bool) {
+			visibility = "public"
+		}
+
+		_, err := client.Projects.UpdateVisibility(&sonargo.ProjectsUpdateVisibilityOption{
+			Project:    d.Get("key").(string),
+			Visibility: visibility,
+		})
+
+		if err != nil {
+			return err
+		}
+
+		d.SetPartial("public")
+	}
+
+	d.Partial(false)
+
+	return nil
 }
 
 func resourceProjectDelete(d *schema.ResourceData, m interface{}) error {
 	client := m.(*sonargo.Client)
 	_, err := client.Projects.Delete(&sonargo.ProjectsDeleteOption{
-		Project: d.Id(),
+		Project: d.Get("key").(string),
 	})
 	if err != nil {
 		return err
