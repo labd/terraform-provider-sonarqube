@@ -1,6 +1,8 @@
 package sonarqube
 
 import (
+	"fmt"
+
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	sonargo "github.com/labd/sonargo/sonar"
 )
@@ -23,7 +25,6 @@ func dataSourceUser() *schema.Resource {
 	}
 }
 
-// dataSourceAwsAmiDescriptionRead performs the AMI lookup.
 func dataSourceUserRead(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(*sonargo.Client)
 
@@ -32,6 +33,10 @@ func dataSourceUserRead(d *schema.ResourceData, meta interface{}) error {
 	})
 	if err != nil {
 		return err
+	}
+
+	if len(result.Users) < 1 {
+		return fmt.Errorf("No user found with email address %s", d.Get("email").(string))
 	}
 	d.SetId(result.Users[0].Login)
 	d.Set("login", result.Users[0].Login)
