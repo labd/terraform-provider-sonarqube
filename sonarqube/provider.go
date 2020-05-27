@@ -28,8 +28,9 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"sonarqube_project":      resourceProject(),
-			"sonarqube_project_user": resourceProjectUser(),
+			"sonarqube_project":        resourceProject(),
+			"sonarqube_project_user":   resourceProjectUser(),
+			"sonarqube_settings_value": resourceSettingsValue(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"sonarqube_user": dataSourceUser(),
