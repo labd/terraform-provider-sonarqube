@@ -1,0 +1,29 @@
+project_name: terraform-provider-sonarqube
+
+builds:
+  - binary: terraform-provider-sonarqube_v{{ .Version }}
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
+
+archives:
+  - name_template: "terraform-provider-sonarqube-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    format_overrides:
+      - goos: windows
+        format: zip
+      - goos: darwin
+        format: zip
+    files:
+      - none*
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
