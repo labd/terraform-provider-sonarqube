@@ -6,6 +6,7 @@
 
 # Executable
 terraform-provider-sonarqube
+dist/*
 
 # Can happen
 crash.log
