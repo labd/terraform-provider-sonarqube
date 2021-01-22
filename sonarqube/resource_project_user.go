@@ -63,10 +63,20 @@ func resourceProjectUserRead(d *schema.ResourceData, m interface{}) error {
 func resourceProjectUserDelete(d *schema.ResourceData, m interface{}) error {
 	client := m.(*sonargo.Client)
 
+	result, _, err := client.Users.Search(&sonargo.UsersSearchOption{
+		Q: d.Get("email").(string),
+	})
+	if err != nil {
+		return err
+	}
+
+	if len(result.Users) < 1 {
+		return fmt.Errorf("No user found with email address %s", d.Get("email").(string))
+	}
+
 	_, err := client.Permissions.RemoveUser(&sonargo.PermissionsRemoveUserOption{
 		Login:      d.Get("login").(string),
 		ProjectKey: d.Get("project_key").(string),
-		Permission: d.Get("permission").(string),
 	})
 	if err != nil {
 		return err
