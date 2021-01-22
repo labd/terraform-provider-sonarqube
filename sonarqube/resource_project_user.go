@@ -63,11 +63,11 @@ func resourceProjectUserRead(d *schema.ResourceData, m interface{}) error {
 func resourceProjectUserDelete(d *schema.ResourceData, m interface{}) error {
 	client := m.(*sonargo.Client)
 
-	result, _, err := client.Users.Search(&sonargo.UsersSearchOption{
+	result, _, err1 := client.Users.Search(&sonargo.UsersSearchOption{
 		Q: d.Get("email").(string),
 	})
-	if err != nil {
-		return err
+	if err1 != nil {
+		return err1
 	}
 
 	if len(result.Users) < 1 {
