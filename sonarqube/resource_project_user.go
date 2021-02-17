@@ -67,7 +67,7 @@ func resourceProjectUserDelete(d *schema.ResourceData, m interface{}) error {
 		Q: d.Get("email").(string),
 	})
 	if err1 != nil {
-		return err1
+		return fmt.Errorf("No user found with email address %s", d.Get("email").(string))
 	}
 
 	if len(result.Users) < 1 {
