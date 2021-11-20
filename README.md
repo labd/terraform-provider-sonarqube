@@ -31,7 +31,7 @@ resource "sonarqube_project" "my_project" {
 resource "sonarqube_project_user" "myproject__my_user" {
   project_key = sonarqube_project.my_project.key
   login       = data.sonarqube_user.my_user.login
-  permission  = "admin"
+  permission  = ["admin","user"]
 }
 
 ```
