@@ -1,9 +1,3 @@
-# Terraform files
-.terraform/
-*.tf
-*.tfstate
-*.tfstate.backup
-
 # Executable
 terraform-provider-sonarqube
 dist/*
