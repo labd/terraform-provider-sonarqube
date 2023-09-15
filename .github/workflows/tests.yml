@@ -1,26 +1,24 @@
 name: Run Tests
 
-on: [push]
+on: [ push ]
 
 jobs:
 
   test:
     runs-on: ubuntu-latest
 
-    strategy:
-      max-parallel: 4
-      matrix:
-        go-version: [1.14]
-
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Go ${{ matrix.go-version }}
-      uses: actions/setup-go@v2
-      with:
-        go-version: ${{ matrix.go-version }}
-    - name: Install dependencies
-      run: 	go get ./sonarqube
-    - name: Run tests
-      run: 	go test -race -coverprofile=coverage.txt -covermode=atomic -coverpkg=./sonarqube -v ./sonarqube
-    - name: Upload to codecov
-      uses: codecov/codecov-action@v1.0.6
+      - uses: actions/checkout@v2
+
+      - name: Set up Go 1.21
+        uses: actions/setup-go@v2
+        with:
+          go-version: "1.21"
+
+      - name: Run tests
+        run: go test -race -coverprofile=coverage.out -covermode=atomic -coverpkg=./... -v ./...
+
+      - name: Upload to codecov
+        uses: codecov/codecov-action@v3
+        with:
+          verbose: true
