@@ -1,0 +1,27 @@
+version: '3'
+
+tasks:
+  default:
+    silent: true
+    desc: List available tasks
+    cmd: task --list-all
+
+  build:
+    desc: Build the provider
+    cmds:
+      - go build
+
+  test:
+    desc: Run tests
+    cmds:
+      - go test -v ./... -timeout=120s -parallel=4
+
+  fmt:
+    desc: Format Go code
+    cmds:
+      - gofmt -s -w .
+
+  vet:
+    desc: Run go vet
+    cmds:
+      - go vet ./...
