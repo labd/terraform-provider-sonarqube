@@ -1,6 +1,6 @@
 module github.com/labd/terraform-provider-sonarqube
 
-go 1.25.8
+go 1.26.0
 
 require (
 	github.com/hashicorp/terraform-plugin-docs v0.19.2
