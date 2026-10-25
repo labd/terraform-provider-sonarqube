@@ -55,7 +55,7 @@ func resourceSettingsValueRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if len(results.Settings) == 0 {
-		return fmt.Errorf("No project found with key %s", d.Id())
+		return fmt.Errorf("no project found with key %s", d.Id())
 	}
 
 	d.Set("key", results.Settings[0].Key)

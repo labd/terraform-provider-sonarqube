@@ -36,7 +36,7 @@ func dataSourceUserRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	if len(result.Users) < 1 {
-		return fmt.Errorf("No user found with email address %s", d.Get("email").(string))
+		return fmt.Errorf("no user found with email address %s", d.Get("email").(string))
 	}
 	d.SetId(result.Users[0].Login)
 	d.Set("login", result.Users[0].Login)

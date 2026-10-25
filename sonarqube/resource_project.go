@@ -83,7 +83,7 @@ func resourceProjectRead(d *schema.ResourceData, m interface{}) error {
 	}
 
 	if len(results.Components) == 0 {
-		return fmt.Errorf("No project found with key %s", d.Id())
+		return fmt.Errorf("no project found with key %s", d.Id())
 	}
 
 	d.Set("name", results.Components[0].Name)
