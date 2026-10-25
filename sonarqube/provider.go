@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hashicorp/terraform-plugin-sdk/helper/mutexkv"
 	"github.com/hashicorp/terraform-plugin-sdk/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	sonargo "github.com/labd/sonargo/sonar"
@@ -51,6 +50,3 @@ func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 
 	return client, nil
 }
-
-// This is a global MutexKV for use within this plugin.
-var ctMutexKV = mutexkv.NewMutexKV()
